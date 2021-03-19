@@ -12,7 +12,7 @@
     <title>JS - PE | R0849413 | Ronny Van Beek</title>
 </head>
 
-<body onload="paginaLaden()">
+<body>
     <div class="container-fluid">
         <div class="row">
             <div class="col-9">
@@ -140,7 +140,7 @@
                         </div>
                         <div class="form-group row my-5">
                             <div class="col-12">
-                                <button id="wave" class="btn btn-primary w-100" onclick="validateForm()">Wave your magic wand</button>
+                                <button id="wave" class="btn btn-primary w-100">Wave your magic wand</button>
                             </div>
                         </div>
                     </form>
@@ -170,12 +170,21 @@
     <script src="js/bootstrap.min.js"></script>
 
     <script>
+        //Globale variabele
+        let errors = [];
+        let betaalwijze = "";
+        let errorsTxt = "";
+
         //Verbergen van de alerts bij laden van het formulier
         document.body.addEventListener("load", paginaLaden(), false);
 
         function paginaLaden() {
-            document.getElementById("divErrors").style.display = 'none';
-            document.getElementById("divVerzendebevestiging").style.display = 'none';
+            document.querySelector("#divErrors").style.display = 'none';
+            document.querySelector("#divVerzendebevestiging").style.display = 'none';
+            document.querySelector("#divBetalingswijze").style.display = 'none';
+            if (errorsTxt != "") {
+                errorsTxt = "";
+            }
         }
 
         //Refreshen van de pagina voorkomen na "on click"
@@ -183,9 +192,7 @@
             event.preventDefault();
         });
 
-        //functie aan knop wave toevoegen
-        //document.getElementById("wave").addEventListener("click", validateForm());
-        //document.querySelector("#wave").addEventListener('click', validateForm());
+
 
         function ValidateEmail(email) { //https://www.simplilearn.com/tutorials/javascript-tutorial/email-validation-in-javascript
             let validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -193,9 +200,19 @@
             if (email.match(validRegex)) {
                 return true;
             } else {
-                //fouten.push("Het veld e-mail is vereist.");
                 return false;
             }
+        }
+
+        function ClearErrors() {
+
+            document.getElementById("errors").innerHTML = "";
+            errorsTxt = "";
+            errors = [];
+            // let Pelement = document.createElement("p").id('errors')
+            // document.getElementById('divErrors').removeChild(Pelement);
+            // document.getElementById('divErrors').appendChild(Pelement);
+
         }
 
         // function CheckEmail(email) { //https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
@@ -211,10 +228,12 @@
         //functie voor controle op lege velden
         function checkEmptyField(veld, melding) {
             let lengte = veld.length;
-            //let fouten = [];
 
             if (lengte < 1) {
-                return melding + "\n";
+                errors.push(melding);
+                return true;
+            } else {
+                return false;
             }
 
         }
@@ -225,19 +244,27 @@
         function controleWachtwoord() {
             let passw = document.forms["formulier"]["wachtwoord"].value;
             let passwConfirm = document.forms["formulier"]["wachtwoordBevestiging"].value;
-            let errors = [];
 
             checkEmptyField(passw, "Het veld wachtwoord is vereist.\n");
             checkEmptyField(passwConfirm, "Het veld wachtwoord bevestiging is vereist.\n");
 
             if (passw.length <= 7) {
                 errors.push("Het wachtwoord moet minstens 7 karakters lang zijn.\n");
+            } else {
+                if (passw != passwConfirm) {
+                    errors.push("Je wachtwoorden komen niet overeen.\n");
+                }
             }
-            if (passw != passwConfirm) {
-                errors.push("Je wachtwoorden komen niet overeen.\n");
-            }
-            return errors;
 
+        }
+
+        function checkPC(veld) {
+            let leeg = checkEmptyField(veld, "Het veld postcode is vereist.");
+            if (leeg == false) {
+                if (!(veld >= 1000 && veld < 10000)) {
+                    errors.push("De waarde moet tussen 1000 en 9999 liggen.");
+                }
+            }
         }
 
         //Controleert de radio buttons met de naam in de parameter en geeft de waarde terug van de geselecteerde.
@@ -246,20 +273,25 @@
 
             for (i = 0; i < elementen.length; i++) {
                 if (elementen[i].checked == true) {
-                    return "Je betalingswijze is " + elementen[i].value;
+                    //result = "Je betalingswijze is " + elementen[i].value;
+                    betaalwijze = "Je betalingswijze is " + elementen[i].value;
+                    //return document.querySelector("#divBetalingswijze").style.display = 'inherit';
                 }
             }
+            return ""
 
             // if (document.getElementById(veld).checked == true) {
             //     return document.getElementById(veld).value;
             // }
-            return ""
+
         }
 
         function validateForm() {
-            let fouten = [];
-            let foutenTxt = "";
-            let Betalingswijze;
+            //let fouten = [];
+            //let foutenTxt = "";
+            //let Betalingswijze;            
+            paginaLaden();
+            //ClearErrors();
             let firstname = document.forms["formulier"]["voornaam"].value;
             let lastname = document.forms["formulier"]["naam"].value;
             let username = document.forms["formulier"]["gebruikersnaam"].value;
@@ -269,38 +301,60 @@
             let provincieSel = document.forms["formulier"]["provincie"].value;
             let postcodeSel = document.forms["formulier"]["postcode"].value;
             let betaalMethode = document.querySelector("#betaalwijze").textContent = validatePayment("gridRadios");
+            let algVoorwaarden = document.querySelector('#Check2').checked; //Checkbox algemene voorwaarden
 
-
-            fouten.push(checkEmptyField(firstname, "Het veld voornaam is vereist."));
-            fouten.push(checkEmptyField(lastname, "Het veld naam is vereist."));
-            fouten.push(checkEmptyField(username, "Het veld gebruikersnaam is vereist."));
+            checkEmptyField(firstname, "Het veld voornaam is vereist.");
+            checkEmptyField(lastname, "Het veld naam is vereist.");
+            checkEmptyField(username, "Het veld gebruikersnaam is vereist.");
 
 
             if (ValidateEmail(mail) == false) {
-                fouten.push('Het veld e-mail is vereist.');
+                errors.push('Het veld e-mail is vereist.');
             }
 
-            fouten.push(controleWachtwoord());
-            fouten.push(checkEmptyField(address, "Het veld adres is vereist."));
-            fouten.push(checkEmptyField(landSel, "Het veld land is vereist."));
-            fouten.push(checkEmptyField(provincieSel, "Het veld provincie is vereist."));
+            controleWachtwoord();
+            checkEmptyField(address, "Het veld adres is vereist.");
+            checkEmptyField(landSel, "Het veld land is vereist.");
+            checkEmptyField(provincieSel, "Het veld provincie is vereist.");
+            checkPC(postcodeSel);
+
+            if (algVoorwaarden == false) {
+                errors.push("Algemene voorwaarden moeten geaccepteerd worden.");
+            }
 
 
-            if (fouten.length > 0) {
-                for (i = 0; i < fouten.length; i++) {
-                    var fout = fouten[i]
-                    for (var property in fout) {
-                        foutenTxt += fout[property].value + "\n";
-                    }
+            if (errors.length > 0) {
+                for (i = 0; i < errors.length; i++) {
+                    var fout = errors[i]
+                    errorsTxt += fout + "<br>";
+                    // for (var property in fout) {
+                    //     foutenTxt += fout[property].value + "\n";
+                    // }
                 }
-                document.querySelector("#errors").textContent = foutenTxt;
-                document.querySelector("#divErrors").style.display = 'inherit';
+                document.getElementById("errors").textContent = "";
+                document.getElementById("errors").innerHTML = errorsTxt;
                 //alert(foutenTxt);
             } else {
                 document.getElementById("divVerzendebevestiging").style.display = 'inherit';
                 //document.querySelector("#divVerzendebevestiging").style.display = 'inherit';
             }
+
+            if (errors.length > 0) {
+                document.querySelector("#divErrors").style.display = 'inherit';
+                document.querySelector("#divVerzendebevestiging").style.display = 'none';
+                document.querySelector("#divBetalingswijze").style.display = 'none';
+                errors = [];
+                //errorsTxt = "";
+            } else {
+                document.querySelector("#divErrors").style.display = 'none';
+                document.querySelector("#divVerzendebevestiging").style.display = 'inherit';
+                document.querySelector("#divBetalingswijze").style.display = 'inherit';
+            }
+
         }
+
+        //functie aan knop wave toevoegen
+        document.getElementById('wave').addEventListener("click", validateForm);
 
         //Controleert de radio buttons met de naam in de parameter en geeft de waarde terug van de geselecteerde.
         function validatePayment(veld) {
