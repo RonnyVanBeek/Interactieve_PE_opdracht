@@ -196,7 +196,13 @@
 
         function ValidateEmail(email) { //https://www.simplilearn.com/tutorials/javascript-tutorial/email-validation-in-javascript
             let validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+            let posAt = email.indexOf('@'); //positie @ teken in e-mail
+            let user = email.substr(0, posAt); //eerste deel van e-mail adres tot aan @ teken (gebruikersnaam)
+            let domain = email.substr(posAt); //tweede deel van e-mail adres vanaf @ teken (domein)
 
+            if (user.length < 1) {
+                errors.push("De e-mail gebruikersnaam is te kort.")
+            }
             if (email.match(validRegex)) {
                 return true;
             } else {
@@ -246,7 +252,7 @@
             let passwConfirm = document.forms["formulier"]["wachtwoordBevestiging"].value;
 
             checkEmptyField(passw, "Het veld wachtwoord is vereist.\n");
-            checkEmptyField(passwConfirm, "Het veld wachtwoord bevestiging is vereist.\n");
+            checkEmptyField(passwConfirm, "Het veld herhaal wachtwoord is vereist.\n");
 
             if (passw.length <= 7) {
                 errors.push("Het wachtwoord moet minstens 7 karakters lang zijn.\n");
@@ -313,7 +319,7 @@
             }
 
             controleWachtwoord();
-            checkEmptyField(address, "Het veld adres is vereist.");
+            checkEmptyField(address, "Adres is vereist.");
             checkEmptyField(landSel, "Het veld land is vereist.");
             checkEmptyField(provincieSel, "Het veld provincie is vereist.");
             checkPC(postcodeSel);
