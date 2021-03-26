@@ -90,6 +90,10 @@
                             </div>
                             <div class="col-3">
                                 <label for="postcode">Postcode</label>
+                                <input type="number" name="postcode" class="form-control" id="postcode">
+                            </div>
+                            <!-- <div class="col-3">
+                                <label for="postcode">Postcode</label>
                                 <select class="custom-select" name="postcode" id="postcode">
                                         <option value="" selected>Kies een postcode</option>
                                         <option value="2300">2300</option>
@@ -99,7 +103,7 @@
                                         <option value="2370">2370</option>
                                         <option value="2470">2470</option>
                                     </select>
-                            </div>
+                            </div> -->
 
                         </div>
                         <div class="form-group row mt-5">
@@ -193,16 +197,13 @@
         });
 
 
-
+        //Valideert het ingegeven e-mail adres volgens de Regex string
         function ValidateEmail(email) { //https://www.simplilearn.com/tutorials/javascript-tutorial/email-validation-in-javascript
-            let validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-            let posAt = email.indexOf('@'); //positie @ teken in e-mail
-            let user = email.substr(0, posAt); //eerste deel van e-mail adres tot aan @ teken (gebruikersnaam)
-            let domain = email.substr(posAt); //tweede deel van e-mail adres vanaf @ teken (domein)
+            let validRegex = /^(?!\.)(?!\-)([a-z\d\.\-\_]+)@((?=[a-z\d]))([a-z\d\.-]+)\.([a-z]{2,8})(\.[a-z]{2,8})?$/
+                //let posAt = email.indexOf('@'); //positie @ teken in e-mail
+                //let user = email.substr(0, posAt); //eerste deel van e-mail adres tot aan @ teken (gebruikersnaam)
+                //let domain = email.substr(posAt); //tweede deel van e-mail adres vanaf @ teken (domein)
 
-            if (user.length < 1) {
-                errors.push("De e-mail gebruikersnaam is te kort.")
-            }
             if (email.match(validRegex)) {
                 return true;
             } else {
@@ -210,26 +211,12 @@
             }
         }
 
+        //divErrors en error array leegmaken na correcte ingave van het formulier.
         function ClearErrors() {
-
             document.getElementById("errors").innerHTML = "";
             errorsTxt = "";
             errors = [];
-            // let Pelement = document.createElement("p").id('errors')
-            // document.getElementById('divErrors').removeChild(Pelement);
-            // document.getElementById('divErrors').appendChild(Pelement);
-
         }
-
-        // function CheckEmail(email) { //https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
-        //     let filter = /^([a-zA-Z0-9_\.\-]{1}$)+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-        //     if (filter.test(email.value)) {
-        //         // Yay! valid
-        //         return true;
-        //     } else {
-        //         return false;
-        //     }
-        // }
 
         //functie voor controle op lege velden
         function checkEmptyField(veld, melding) {
@@ -265,9 +252,14 @@
         }
 
         function checkPC(veld) {
-            let leeg = checkEmptyField(veld, "Het veld postcode is vereist.");
-            if (leeg == false) {
+            // let leeg = checkEmptyField(veld, "Het veld postcode is vereist.");
+            // if (leeg == false) {
+
+            // }
+
+            if (veld.length > 0) {
                 if (!(veld >= 1000 && veld < 10000)) {
+
                     errors.push("De waarde moet tussen 1000 en 9999 liggen.");
                 }
             }
@@ -279,33 +271,23 @@
 
             for (i = 0; i < elementen.length; i++) {
                 if (elementen[i].checked == true) {
-                    //result = "Je betalingswijze is " + elementen[i].value;
                     betaalwijze = "Je betalingswijze is " + elementen[i].value;
-                    //return document.querySelector("#divBetalingswijze").style.display = 'inherit';
                 }
             }
             return ""
-
-            // if (document.getElementById(veld).checked == true) {
-            //     return document.getElementById(veld).value;
-            // }
-
         }
 
         function validateForm() {
-            //let fouten = [];
-            //let foutenTxt = "";
-            //let Betalingswijze;            
             paginaLaden();
-            //ClearErrors();
-            let firstname = document.forms["formulier"]["voornaam"].value;
-            let lastname = document.forms["formulier"]["naam"].value;
-            let username = document.forms["formulier"]["gebruikersnaam"].value;
-            let mail = document.forms["formulier"]["email"].value;
-            let address = document.forms["formulier"]["adres"].value;
-            let landSel = document.forms["formulier"]["Land"].value;
-            let provincieSel = document.forms["formulier"]["provincie"].value;
-            let postcodeSel = document.forms["formulier"]["postcode"].value;
+            let firstname = document.forms["formulier"]["voornaam"].value; //Tekstvak voornaam
+            let lastname = document.forms["formulier"]["naam"].value; //Tekstvak naam
+            let username = document.forms["formulier"]["gebruikersnaam"].value; //Tekstvak gebruikersnaam
+            let mail = document.forms["formulier"]["email"].value; //Tekstvak e-mail
+            let address = document.forms["formulier"]["adres"].value; //Tekstvak adres
+            let landSel = document.forms["formulier"]["Land"].value; //Keuzelijst land
+            let provincieSel = document.forms["formulier"]["provincie"].value; //Keuzelijst
+            //let postcodeSel = document.forms["formulier"]["postcode"].value;
+            let postcodeSel = document.querySelector('#postcode').value;
             let betaalMethode = document.querySelector("#betaalwijze").textContent = validatePayment("gridRadios");
             let algVoorwaarden = document.querySelector('#Check2').checked; //Checkbox algemene voorwaarden
 
@@ -313,9 +295,10 @@
             checkEmptyField(lastname, "Het veld naam is vereist.");
             checkEmptyField(username, "Het veld gebruikersnaam is vereist.");
 
-
-            if (ValidateEmail(mail) == false) {
-                errors.push('Het veld e-mail is vereist.');
+            if (checkEmptyField(mail, "Het veld e-mail is vereist.") == false) {
+                if (ValidateEmail(mail) == false) {
+                    errors.push('Het veld e-mail bevat fouten.');
+                }
             }
 
             controleWachtwoord();
