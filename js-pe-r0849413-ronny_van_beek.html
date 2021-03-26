@@ -92,19 +92,6 @@
                                 <label for="postcode">Postcode</label>
                                 <input type="number" name="postcode" class="form-control" id="postcode">
                             </div>
-                            <!-- <div class="col-3">
-                                <label for="postcode">Postcode</label>
-                                <select class="custom-select" name="postcode" id="postcode">
-                                        <option value="" selected>Kies een postcode</option>
-                                        <option value="2300">2300</option>
-                                        <option value="2330">2330</option>
-                                        <option value="2400">2400</option>
-                                        <option value="2440">2440</option>
-                                        <option value="2370">2370</option>
-                                        <option value="2470">2470</option>
-                                    </select>
-                            </div> -->
-
                         </div>
                         <div class="form-group row mt-5">
                             <div class="col-6">
@@ -200,9 +187,6 @@
         //Valideert het ingegeven e-mail adres volgens de Regex string
         function ValidateEmail(email) { //https://www.simplilearn.com/tutorials/javascript-tutorial/email-validation-in-javascript
             let validRegex = /^(?!\.)(?!\-)([a-z\d\.\-\_]+)@((?=[a-z\d]))([a-z\d\.-]+)\.([a-z]{2,8})(\.[a-z]{2,8})?$/
-                //let posAt = email.indexOf('@'); //positie @ teken in e-mail
-                //let user = email.substr(0, posAt); //eerste deel van e-mail adres tot aan @ teken (gebruikersnaam)
-                //let domain = email.substr(posAt); //tweede deel van e-mail adres vanaf @ teken (domein)
 
             if (email.match(validRegex)) {
                 return true;
@@ -251,15 +235,10 @@
 
         }
 
+        //Controle van de inhoud in het veld postcode. Niet verplicht in te vullen.
         function checkPC(veld) {
-            // let leeg = checkEmptyField(veld, "Het veld postcode is vereist.");
-            // if (leeg == false) {
-
-            // }
-
             if (veld.length > 0) {
                 if (!(veld >= 1000 && veld < 10000)) {
-
                     errors.push("De waarde moet tussen 1000 en 9999 liggen.");
                 }
             }
@@ -285,59 +264,55 @@
             let mail = document.forms["formulier"]["email"].value; //Tekstvak e-mail
             let address = document.forms["formulier"]["adres"].value; //Tekstvak adres
             let landSel = document.forms["formulier"]["Land"].value; //Keuzelijst land
-            let provincieSel = document.forms["formulier"]["provincie"].value; //Keuzelijst
-            //let postcodeSel = document.forms["formulier"]["postcode"].value;
-            let postcodeSel = document.querySelector('#postcode').value;
-            let betaalMethode = document.querySelector("#betaalwijze").textContent = validatePayment("gridRadios");
+            let provincieSel = document.forms["formulier"]["provincie"].value; //Keuzelijst provincie
+            let postcodeSel = document.querySelector('#postcode').value; //Numerieke invoer postcode
+            let betaalMethode = document.querySelector("#betaalwijze").textContent = validatePayment("gridRadios"); //Controle op de radio buttons betaling
             let algVoorwaarden = document.querySelector('#Check2').checked; //Checkbox algemene voorwaarden
 
-            checkEmptyField(firstname, "Het veld voornaam is vereist.");
-            checkEmptyField(lastname, "Het veld naam is vereist.");
-            checkEmptyField(username, "Het veld gebruikersnaam is vereist.");
+            checkEmptyField(firstname, "Het veld voornaam is vereist."); //controle of het veld voornaam leeg is.
+            checkEmptyField(lastname, "Het veld naam is vereist."); //controle of het veld naam leeg is.
+            checkEmptyField(username, "Het veld gebruikersnaam is vereist."); //controle of het veld gebruikersnaam leeg is.
 
+            //Controle of het veld e-mail leeg is of niet
+            //Controle op de correctheid van het e-mail adres op basis van Regex a.d.h.v. de vereisten in de opgave
             if (checkEmptyField(mail, "Het veld e-mail is vereist.") == false) {
                 if (ValidateEmail(mail) == false) {
                     errors.push('Het veld e-mail bevat fouten.');
                 }
             }
 
-            controleWachtwoord();
-            checkEmptyField(address, "Adres is vereist.");
-            checkEmptyField(landSel, "Het veld land is vereist.");
-            checkEmptyField(provincieSel, "Het veld provincie is vereist.");
-            checkPC(postcodeSel);
+            controleWachtwoord(); //Controle of wachtwoord velden leeg zijn, of het wachtwoord min. 7 karakters lang is, en beide wachtwoord velden gelijk zijn.
+            checkEmptyField(address, "Adres is vereist."); //controle of het veld adres leeg is.
+            checkEmptyField(landSel, "Het veld land is vereist."); //controle of een land geselecteerd is.
+            checkEmptyField(provincieSel, "Het veld provincie is vereist."); //controle of een provincie geselecteerd is.
+            checkPC(postcodeSel); //controleert een ingevoerde postcode op de correctheid
 
+            //Controleert of het vinkje "Algemene voorwaarden" aangevinkt is.
             if (algVoorwaarden == false) {
                 errors.push("Algemene voorwaarden moeten geaccepteerd worden.");
             }
 
-
+            //Als errors in de array zijn opgenomen
             if (errors.length > 0) {
-                for (i = 0; i < errors.length; i++) {
+                for (i = 0; i < errors.length; i++) { //overloopt alle errors in de array
                     var fout = errors[i]
-                    errorsTxt += fout + "<br>";
-                    // for (var property in fout) {
-                    //     foutenTxt += fout[property].value + "\n";
-                    // }
+                    errorsTxt += fout + "<br>"; //voegt de errors uit de array toe aan tekstvariabele
                 }
                 document.getElementById("errors").textContent = "";
-                document.getElementById("errors").innerHTML = errorsTxt;
-                //alert(foutenTxt);
+                document.getElementById("errors").innerHTML = errorsTxt; //de inhoud van de tekstvariabele toevoegen aan de divErrors => p tag
             } else {
-                document.getElementById("divVerzendebevestiging").style.display = 'inherit';
-                //document.querySelector("#divVerzendebevestiging").style.display = 'inherit';
+                document.getElementById("divVerzendebevestiging").style.display = 'inherit'; //maakt de div alert success zichtbaar
             }
 
-            if (errors.length > 0) {
-                document.querySelector("#divErrors").style.display = 'inherit';
-                document.querySelector("#divVerzendebevestiging").style.display = 'none';
-                document.querySelector("#divBetalingswijze").style.display = 'none';
-                errors = [];
-                //errorsTxt = "";
+            if (errors.length > 0) { //als de array errors niet leeg is
+                document.querySelector("#divErrors").style.display = 'inherit'; //maakt de div alert danger zichtbaar
+                document.querySelector("#divVerzendebevestiging").style.display = 'none'; //maakt de div alert success onzichtbaar
+                document.querySelector("#divBetalingswijze").style.display = 'none'; //maakt de div alert info onzichtbaar
+                errors = []; //maakt de array errors opnieuw leeg
             } else {
-                document.querySelector("#divErrors").style.display = 'none';
-                document.querySelector("#divVerzendebevestiging").style.display = 'inherit';
-                document.querySelector("#divBetalingswijze").style.display = 'inherit';
+                document.querySelector("#divErrors").style.display = 'none'; //maakt de div alert danger onzichtbaar
+                document.querySelector("#divVerzendebevestiging").style.display = 'inherit'; //maakt de div alert success zichtbaar
+                document.querySelector("#divBetalingswijze").style.display = 'inherit'; //maakt de div alert info zichtbaar
             }
 
         }
@@ -349,15 +324,12 @@
         function validatePayment(veld) {
             let elementen = document.getElementsByName(veld);
 
-            for (i = 0; i < elementen.length; i++) {
-                if (elementen[i].checked == true) {
-                    return "Je betalingswijze is " + elementen[i].value;
+            for (i = 0; i < elementen.length; i++) { //Overloopt elke radio button binnen de groep
+                if (elementen[i].checked == true) { //gaat na welke radio button geselecteerd is
+                    return "Je betalingswijze is " + elementen[i].value; //geeft de waarde van de radio button terug
                 }
             }
 
-            // if (document.getElementById(veld).checked == true) {
-            //     return document.getElementById(veld).value;
-            // }
             return ""
         }
     </script>
